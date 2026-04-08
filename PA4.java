@@ -12,6 +12,8 @@ public class PA4 {
         SceneTransformer sceneTransformer = new AnalysisTransformer();
         PackManager.v().getPack("wjtp").add(new Transform("wjtp.dfa", sceneTransformer));
 
+        // Running an optimizer as inlining produces a lot of dead code
+        PhaseOptions.v().setPhaseOption("jop", "enabled:true");
         // 3. Prepare arguments
         String[] sootArgs = {
                 "-cp", classPath,

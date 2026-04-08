@@ -3,6 +3,7 @@ import soot.*;
 import soot.jimple.*;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.jimple.toolkits.invoke.SiteInliner;
 import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
@@ -22,7 +23,52 @@ public class AnalysisTransformer extends SceneTransformer {
         assert (entrypoints.size() == 1);
         SootMethod entryMethod = entrypoints.get(0);
 
-        handleMainMethod(entryMethod);
+        inlineBasic();
+
+        // handleMainMethod(entryMethod);
+    }
+
+    public record inlineTarget(SootMethod inlinee, Stmt site, SootMethod container){}
+
+    void inlineBasic()
+    {
+        List<inlineTarget> tgts = new ArrayList<>();
+        for(SootClass sc : Scene.v().getApplicationClasses())
+        {
+            for(SootMethod sm : sc.getMethods())
+            {
+                Body body = sm.getActiveBody();
+                for(Unit u : body.getUnits())
+                {
+                    Stmt stmt = (Stmt) u;
+                    if(stmt.containsInvokeExpr()) 
+                    {
+                        Iterator<Edge> e = cg.edgesOutOf(u);
+                        if(e.hasNext())
+                        {
+                            SootMethod callee = e.next().tgt();
+                            if(!e.hasNext())
+                            {
+                                // is singleton
+                                // SiteInliner.inlineSite(callee, null, sm)
+                                System.out.println("here");
+                                tgts.add(new inlineTarget(callee, stmt, sm));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for(var ir : tgts)
+        {
+            System.out.println("here2");
+            SiteInliner.inlineSite(ir.inlinee, ir.site, ir.container);
+        }
+
+        // Run peephole optimizer since this produces kindof bad code
+        
+
     }
 
     void handleMainMethod(SootMethod myMethod) {
