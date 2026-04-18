@@ -57,7 +57,7 @@ public class Context {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof MethodContext mc))
+        if (!(o instanceof Context mc))
             return false;
         return Objects.equals(sm, mc.sm) &&
                 Objects.equals(recv, mc.recv);

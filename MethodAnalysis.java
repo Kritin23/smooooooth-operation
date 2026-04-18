@@ -20,6 +20,11 @@ public class MethodAnalysis {
         }
     }
 
+    // This stores the results of all analysis
+    static HashMap<Context, Result> allResults = new HashMap<>();
+    static HashMap<Unit, Set<SootMethod>> targets = new HashMap<>();
+
+
     SootMethod method;
     Body body;
     CallGraph cg;
@@ -36,7 +41,6 @@ public class MethodAnalysis {
     // Map<HeapObj, Boolean> scalarReplaceable = new HashMap<>();
     // Map<HeapObj, Set<Integer>> objCallSites = new HashMap<>();
     static HashMap<Context, PTG> methodInPTG = new HashMap<>();
-    static HashMap<Context, Result> allResults = new HashMap<>();
 
     MethodAnalysis(SootMethod sm,
             CallGraph _cg,
@@ -286,11 +290,13 @@ public class MethodAnalysis {
                 SootMethod called = Scene.v().getActiveHierarchy()
                         .resolveConcreteDispatch(sc, declMethod);
 
-                analysisRes.targets.
-                    computeIfAbsent(stmt, k -> new HashSet<>()).add(called);
-
                 if (called == null)
                     continue;
+
+                analysisRes.targets.
+                    computeIfAbsent(stmt, k -> new HashSet<>()).add(called);
+                targets.computeIfAbsent(stmt, k->new HashSet<>()).
+                    add(called);
 
                 List<Value> param_val = invoke.getArgs();
                 List<Local> param_loc = new ArrayList<>();

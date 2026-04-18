@@ -12,9 +12,9 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 
 public class HeapObj {
     Unit alloc_site;
-    MethodAnalysis.MethodContext ctx;
+    Context ctx;
 
-    HeapObj(Unit alloc_site, MethodAnalysis.MethodContext ctx) {
+    HeapObj(Unit alloc_site, Context ctx) {
         this.alloc_site = alloc_site;
         this.ctx = ctx;
     }

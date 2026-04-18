@@ -23,51 +23,14 @@ public class AnalysisTransformer extends SceneTransformer {
         assert (entrypoints.size() == 1);
         SootMethod entryMethod = entrypoints.get(0);
 
-        inlineBasic();
-
+        Optimization opt = new Optimization(cg);
+        opt.basicInlining();
+        
         handleEntryPoint(entryMethod);
         // handleMainMethod(entryMethod);
     }
 
-    public record inlineTarget(SootMethod inlinee, Stmt site, SootMethod container){}
-
-    void inlineBasic()
-    {
-        List<inlineTarget> tgts = new ArrayList<>();
-        for(SootClass sc : Scene.v().getApplicationClasses())
-        {
-            for(SootMethod sm : sc.getMethods())
-            {
-                Body body = sm.getActiveBody();
-                for(Unit u : body.getUnits())
-                {
-                    Stmt stmt = (Stmt) u;
-                    if(stmt.containsInvokeExpr()) 
-                    {
-                        Iterator<Edge> e = cg.edgesOutOf(u);
-                        if(e.hasNext())
-                        {
-                            SootMethod callee = e.next().tgt();
-                            if(!e.hasNext())
-                            {
-                                // is singleton
-                                // SiteInliner.inlineSite(callee, null, sm)
-                                // System.out.println("here");
-                                tgts.add(new inlineTarget(callee, stmt, sm));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        for(var ir : tgts)
-        {
-            // System.out.println("here2");
-            SiteInliner.inlineSite(ir.inlinee, ir.site, ir.container);
-        }        
-
-    }
+   
 
     void handleEntryPoint(SootMethod sm)
     {
