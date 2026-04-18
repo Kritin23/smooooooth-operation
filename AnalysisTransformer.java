@@ -15,9 +15,9 @@ public class AnalysisTransformer extends SceneTransformer {
 
     static CallGraph cg;
 
-    static int numIters = 1;
+    static int numIters = 4;
     static boolean doBasic = true;
-    static boolean doBetter = false;
+    static boolean doBetter = true;
 
 
     @Override
@@ -104,7 +104,7 @@ public class AnalysisTransformer extends SceneTransformer {
     void outputJimple() {
         for (SootClass sc : Scene.v().getApplicationClasses()) {
             String fileName = "./sootJimple/" +
-                    sc.getName() + "." + ".jimple";
+                    sc.getName() + ".jimple";
             try (java.io.PrintWriter out = new java.io.PrintWriter(fileName)) {
                 for (SootMethod sm : sc.getMethods()) {
                     if (!sm.hasActiveBody())
