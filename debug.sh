@@ -3,8 +3,8 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-rm sootOutput/*
+rm sootOutpupt/*
 rm *.class
 javac testcases/$1/Test.java
 javac -g -cp .:soot.jar PA4.java
-java -cp .:soot.jar PA4 $1
+jdb -classpath .:soot.jar PA4 $1

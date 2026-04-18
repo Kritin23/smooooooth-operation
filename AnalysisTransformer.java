@@ -25,6 +25,7 @@ public class AnalysisTransformer extends SceneTransformer {
 
         inlineBasic();
 
+        handleEntryPoint(entryMethod);
         // handleMainMethod(entryMethod);
     }
 
@@ -51,7 +52,7 @@ public class AnalysisTransformer extends SceneTransformer {
                             {
                                 // is singleton
                                 // SiteInliner.inlineSite(callee, null, sm)
-                                System.out.println("here");
+                                // System.out.println("here");
                                 tgts.add(new inlineTarget(callee, stmt, sm));
                             }
                         }
@@ -62,15 +63,23 @@ public class AnalysisTransformer extends SceneTransformer {
 
         for(var ir : tgts)
         {
-            System.out.println("here2");
+            // System.out.println("here2");
             SiteInliner.inlineSite(ir.inlinee, ir.site, ir.container);
-        }
-
-        // Run peephole optimizer since this produces kindof bad code
-        
+        }        
 
     }
 
+    void handleEntryPoint(SootMethod sm)
+    {
+        int numArgs = sm.getParameterCount();
+        List<Local> params = new ArrayList<>();
+        for(int i=0;i<numArgs;i++)
+            params.add(null);
+        MethodAnalysis main = new MethodAnalysis(sm, cg, null, params, new PTG());
+        main.runAnalysis();
+    }
+
+    /* 
     void handleMainMethod(SootMethod myMethod) {
         Map<HeapObj, Boolean> globalResults = new HashMap<>();
         Map<HeapObj, Set<Integer>> globalCallSites = new HashMap<>();
@@ -93,13 +102,13 @@ public class AnalysisTransformer extends SceneTransformer {
 
             visited.add(current);
 
-            MethodAnalysis analysis = new MethodAnalysis();
+            MethodAnalysis analysis = new MethodAnalysis(current, cg);
             analysis.method = current;
             analysis.body = current.getActiveBody();
             analysis.cg = cg;
-            analysis.scalarReplaceable = globalResults; // shared!
+            // analysis.scalarReplaceable = globalResults; // shared!
 
-            analysis.analyzeScalarReplaceability();
+            analysis.runAnalysis();
 
             // merge call sites into global map
             for (Map.Entry<HeapObj, Set<Integer>> e : analysis.objCallSites.entrySet()) {
@@ -144,4 +153,6 @@ public class AnalysisTransformer extends SceneTransformer {
                     }
                 });
     }
+
+    */
 }

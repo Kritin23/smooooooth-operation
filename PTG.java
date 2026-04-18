@@ -96,6 +96,37 @@ public class PTG {
         return newPTG;
     }
 
+    /**
+     * Copies PTG reachable from locals set
+     * @param locals
+     * @return copied PTG
+     */
+    PTG copy_restrict(List<Local> locals)
+    {
+        Set<HeapObj> reachableSet = new HashSet<>();
+        for(var l : locals)
+        {
+            reachableSet.addAll(reachable(l));
+        }
+
+
+        PTG newPTG = new PTG();
+        for (var l : locals) {
+            if(stack.keySet().contains(l))
+                newPTG.stack.put(l, new HashSet<>(stack.get(l)));
+        }
+        for (Map.Entry<HeapObj, Map<SootField, Set<HeapObj>>> entry : heap.entrySet()) {
+            if(reachableSet.contains(entry.getKey())) {
+                Map<SootField, Set<HeapObj>> newFields = new HashMap<>();
+                for (Map.Entry<SootField, Set<HeapObj>> fieldEntry : entry.getValue().entrySet()) {
+                    newFields.put(fieldEntry.getKey(), new HashSet<>(fieldEntry.getValue()));
+                }
+                newPTG.heap.put(entry.getKey(), newFields);
+            }
+        }
+        return newPTG;
+    }
+
     // print function for ptg which prints stack and heap in a readable format
     public String toString() {
         StringBuilder sb = new StringBuilder();

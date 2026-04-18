@@ -1,6 +1,8 @@
-import java`.util.*;
+import java.util.*;
 import soot.*;
 import soot.jimple.*;
+import soot.jimple.internal.JAssignStmt;
+import soot.jimple.internal.JNewExpr;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.UnitGraph;
@@ -10,13 +12,31 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 
 public class HeapObj {
     Unit alloc_site;
+    MethodAnalysis.MethodContext ctx;
 
-    HeapObj(Unit alloc_site) {
+    HeapObj(Unit alloc_site, MethodAnalysis.MethodContext ctx) {
         this.alloc_site = alloc_site;
+        this.ctx = ctx;
     }
 
     public String toString() {
-        return "HeapObj allocated at: " + alloc_site;
+        return String.format(
+            "Obj_%s @ %s", 
+            alloc_site.getJavaSourceStartLineNumber(),
+            ctx.toString()
+            );
+    }
+
+    Type getStaticType() {
+        JAssignStmt stmt = (JAssignStmt) alloc_site;
+        Value lhs = stmt.getLeftOp();
+        return lhs.getType();
+    }   
+
+    Type getObjectType() {
+        JAssignStmt stmt = (JAssignStmt) alloc_site;
+        JNewExpr new_e = (JNewExpr) stmt.getRightOp();
+        return new_e.getType();
     }
 
     @Override
