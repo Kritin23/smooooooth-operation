@@ -1,0 +1,131 @@
+    public void <init>()
+    {
+        Test r0;
+
+        r0 := @this: Test;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    static int g(A)
+    {
+        int $i0;
+        A r0;
+
+        r0 := @parameter0: A;
+
+        $i0 = virtualinvoke r0.<A: int f()>();
+
+        return $i0;
+    }
+
+    public static void main(java.lang.String[])
+    {
+        A r14, r15;
+        B $r4, $r5, $r7, $r9, $r10;
+        D $r8, $r11;
+        E $r6;
+        F $r12;
+        long l0, $l1, $l2, l6;
+        java.lang.String[] r13;
+        int i3, i4, i5, $i7, $i8;
+        java.lang.String $r3;
+        java.io.PrintStream $r0, $r1, $r2;
+
+        r13 := @parameter0: java.lang.String[];
+
+        i3 = 0;
+
+        i4 = 0;
+
+        l0 = staticinvoke <java.lang.System: long nanoTime()>();
+
+        i5 = 0;
+
+     label1:
+        if i5 >= 1000000 goto label4;
+
+        $r4 = new B;
+
+        specialinvoke $r4.<B: void <init>(int)>(2);
+
+        $r5 = new B;
+
+        specialinvoke $r5.<B: void <init>(int)>(3);
+
+        $r6 = new E;
+
+        specialinvoke $r6.<E: void <init>(A,A)>($r4, $r5);
+
+        $r7 = new B;
+
+        specialinvoke $r7.<B: void <init>(int)>(1);
+
+        $r8 = new D;
+
+        specialinvoke $r8.<D: void <init>(A,A)>($r7, $r6);
+
+        $r9 = new B;
+
+        specialinvoke $r9.<B: void <init>(int)>(4);
+
+        $r10 = new B;
+
+        specialinvoke $r10.<B: void <init>(int)>(5);
+
+        $r11 = new D;
+
+        specialinvoke $r11.<D: void <init>(A,A)>($r9, $r10);
+
+        $r12 = new F;
+
+        specialinvoke $r12.<F: void <init>(A)>($r11);
+
+        r14 = $r8;
+
+        $i7 = virtualinvoke r14.<A: int f()>();
+
+        i3 = $i7;
+
+        goto label2;
+
+     label2:
+        r15 = $r12;
+
+        $i8 = virtualinvoke r15.<A: int f()>();
+
+        i4 = $i8;
+
+        goto label3;
+
+     label3:
+        i5 = i5 + 1;
+
+        goto label1;
+
+     label4:
+        $r0 = <java.lang.System: java.io.PrintStream out>;
+
+        virtualinvoke $r0.<java.io.PrintStream: void println(int)>(i3);
+
+        $r1 = <java.lang.System: java.io.PrintStream out>;
+
+        virtualinvoke $r1.<java.io.PrintStream: void println(int)>(i4);
+
+        l6 = staticinvoke <java.lang.System: long nanoTime()>();
+
+        $r2 = <java.lang.System: java.io.PrintStream out>;
+
+        $l1 = l6 - l0;
+
+        $l2 = $l1 / 1000L;
+
+        $r3 = dynamicinvoke "makeConcatWithConstants" <java.lang.String (long)>($l2) <java.lang.invoke.StringConcatFactory: java.lang.invoke.CallSite makeConcatWithConstants(java.lang.invoke.MethodHandles$Lookup,java.lang.String,java.lang.invoke.MethodType,java.lang.String,java.lang.Object[])>("Time (us): \u0001");
+
+        virtualinvoke $r2.<java.io.PrintStream: void println(java.lang.String)>($r3);
+
+        return;
+    }
+

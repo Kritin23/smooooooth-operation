@@ -46,7 +46,7 @@ public class AnalysisTransformer extends SceneTransformer {
             opt.setCG(cg);
 
             System.out.println("Basic Inlining -----");
-            dumpCallGraphDot(cg, "callGraphs/cg_" + i + ".dot");
+            // dumpCallGraphDot(cg, "callGraphs/cg_" + i + ".dot");
             if (doBasic)
                 opt.basicInlining();
             // forEachMethod((sc, sm) -> cleanupPass(sc, sm));

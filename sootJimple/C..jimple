@@ -1,0 +1,20 @@
+    void <init>(A, A)
+    {
+        A r1, r2;
+        C r0;
+
+        r0 := @this: C;
+
+        r1 := @parameter0: A;
+
+        r2 := @parameter1: A;
+
+        specialinvoke r0.<A: void <init>()>();
+
+        r0.<C: A l> = r1;
+
+        r0.<C: A r> = r2;
+
+        return;
+    }
+

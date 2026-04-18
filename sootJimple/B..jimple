@@ -1,0 +1,28 @@
+    void <init>(int)
+    {
+        int i0;
+        B r0;
+
+        r0 := @this: B;
+
+        i0 := @parameter0: int;
+
+        specialinvoke r0.<A: void <init>()>();
+
+        r0.<B: int v> = i0;
+
+        return;
+    }
+
+    int f()
+    {
+        int $i0;
+        B r0;
+
+        r0 := @this: B;
+
+        $i0 = r0.<B: int v>;
+
+        return $i0;
+    }
+
