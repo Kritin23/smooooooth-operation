@@ -1,4 +1,4 @@
-
+/* MethodAnalysis.java */
 import java.util.*;
 
 import fj.Hash;
@@ -9,11 +9,13 @@ import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
+
 public class MethodAnalysis {
+    record CallSite(SootMethod method, Unit unit) {}
 
     record Result (
         Map<Unit, Set<SootMethod>> targets,
-        Map<Unit, Set<HeapObj>> recievers
+        Map<Unit, Set<HeapObj>> receivers
     ) {
         Result(){
             this(new HashMap<>(), new HashMap<>());
@@ -22,7 +24,7 @@ public class MethodAnalysis {
 
     // This stores the results of all analysis
     static HashMap<Context, Result> allResults = new HashMap<>();
-    static HashMap<Unit, Set<SootMethod>> targets = new HashMap<>();
+    static HashMap<CallSite, Set<SootMethod>> targets = new HashMap<>();
 
 
     SootMethod method;
@@ -41,6 +43,7 @@ public class MethodAnalysis {
     // Map<HeapObj, Boolean> scalarReplaceable = new HashMap<>();
     // Map<HeapObj, Set<Integer>> objCallSites = new HashMap<>();
     static HashMap<Context, PTG> methodInPTG = new HashMap<>();
+    static HashSet<Context> onStack = new HashSet<>();
 
     MethodAnalysis(SootMethod sm,
             CallGraph _cg,
@@ -76,7 +79,9 @@ public class MethodAnalysis {
 
         }
 
-        this.ctx = new Context(sm, recv);
+        this.ctx = new Context(sm, recv);   
+        if(onStack.contains(ctx))
+            analysisNeeded = false;
         if (MethodAnalysis.methodInPTG.containsKey(this.ctx)) {
             PTG newPTG = this.inPtg.copy();
             newPTG.merge(MethodAnalysis.methodInPTG.get(this.ctx));
@@ -89,7 +94,7 @@ public class MethodAnalysis {
             MethodAnalysis.methodInPTG.put(this.ctx, this.inPtg);
         }
 
-        System.out.println("Analysing " + this.ctx);
+        // System.out.println("Analysing " + this.ctx);
 
     }
 
@@ -194,7 +199,14 @@ public class MethodAnalysis {
                 Set<HeapObj> result = new HashSet<>();
 
                 for (HeapObj obj : ptg.getStack(base)) {
-                    result.addAll(ptg.getHeap(obj, fr.getField()));
+                    Set<HeapObj> ho = ptg.getHeap(obj, fr.getField());
+                    if(ho.isEmpty())
+                    {
+                        result.clear();
+                        break;
+                    }
+                    else
+                        result.addAll(ho);
                 }
 
                 ptg.stack.put((Local) lhs, result);
@@ -243,6 +255,9 @@ public class MethodAnalysis {
         InvokeExpr invoke = stmt.getInvokeExpr();
 
         System.out.println("CallStmt: " + invoke);
+        System.out.println("PTG: ");
+        System.out.println(ptg);
+        System.out.println("*********************");
 
         SootMethod declMethod = invoke.getMethod();
         // int lineNo = stmt.getJavaSourceStartLineNumber();
@@ -293,9 +308,10 @@ public class MethodAnalysis {
                 if (called == null)
                     continue;
 
+                CallSite cs = new CallSite(method, stmt);
                 analysisRes.targets.
                     computeIfAbsent(stmt, k -> new HashSet<>()).add(called);
-                targets.computeIfAbsent(stmt, k->new HashSet<>()).
+                targets.computeIfAbsent(cs, k->new HashSet<>()).
                     add(called);
 
                 List<Value> param_val = invoke.getArgs();
@@ -315,7 +331,7 @@ public class MethodAnalysis {
             }
         }
 
-        analysisRes.recievers.put(stmt, objs);
+        analysisRes.receivers.put(stmt, objs);
 
         // Iterator<Edge> targets = cg.edgesOutOf(stmt);
         // while (targets.hasNext()) {
@@ -349,7 +365,7 @@ public class MethodAnalysis {
 
         if (!analysisNeeded)
             return;
-
+        onStack.add(ctx);
         UnitGraph cfg = new ExceptionalUnitGraph(body);
         PTG globalOutPtg = new PTG();
 
@@ -403,13 +419,29 @@ public class MethodAnalysis {
         }
 
         allResults.put(ctx, this.analysisRes);
-
+        onStack.remove(ctx);
         // return globalOutPtg;
 
         // propagateNonScalarReplaceable(globalMergedPTG);
         // return scalarReplaceable;
     }
 
+    static void clearAllResults() {
+        allResults = new HashMap<>();
+        targets = new HashMap<>();
+    }
+
+    static void printTargets()
+    {
+        for(var cs : targets.keySet())
+        {
+            System.out.println(cs + ": ");
+            for(var sm : targets.get(cs))
+            {
+                System.out.println("\t" + sm);
+            }
+        }
+    }
 }
 
 /*

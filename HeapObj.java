@@ -21,8 +21,9 @@ public class HeapObj {
 
     public String toString() {
         return String.format(
-            "Obj_%s @ %s", 
+            "Obj_%s (%s) @ %s", 
             alloc_site.getJavaSourceStartLineNumber(),
+            getObjectType(),
             ctx.toString()
             );
     }

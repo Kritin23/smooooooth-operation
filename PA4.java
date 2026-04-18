@@ -4,6 +4,7 @@ import soot.options.Options;
 public class PA4 {
     public static void main(String[] args) {
         String classPath = "./testcases/" + args[0];
+        String outputDir = "./sootOutput/" + args[0];
 
         // 1. Setting global options
         Options.v().set_keep_line_number(true);
@@ -27,10 +28,11 @@ public class PA4 {
                 "-exclude", "sun.*",
                 "-exclude", "com.sun.*",
                 "-exclude", "jdk.*",
-                "-f", "J",
+                "-f", "c",
                 "-t", "1",
                 "-main-class", "Test", // specify the main class
-                "-process-dir", classPath
+                "-process-dir", classPath,
+                "-d", outputDir
         };
 
         // 4. Just call main. It will parse args, load classes, and run the packs.
