@@ -1,3 +1,10 @@
+/**
+ * Long call chain
+ * Everything inlined
+ * huge improvement
+ */
+
+
 abstract class A {
     abstract int f(int x);
 }
@@ -78,6 +85,6 @@ public class Test {
         long end = System.nanoTime();
 
         System.out.println("Result: " + result);
-        System.out.println("Time (ms): " + (end - start) / 1000000);
+        System.out.println("Time (ms): " + (end - start) / 1000);
     }
 }

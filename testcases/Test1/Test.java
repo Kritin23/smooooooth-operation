@@ -1,46 +1,28 @@
-class M {
-    int x, y;
-    M m;
+/**
+ * Simple testcase. expect large speedup
+ */
 
-    void foo(M mm) {
-        m.bar(mm);
-    }
-
-    void bar(M mm) {
-        mm.m.x = 2;
-    }
-}
-
-class N extends M {
-    void foo(M mm)
+class A {
+    int add(int a, int b)
     {
-        bar(mm);
-    }
-
-    void bar(M mm)
-    {
-        mm.m.x = 1;
-    }
-}
-
-class T extends N {
-    void bar(M mm)
-    {
-        mm.m.x = 0;
+        return a+b;
     }
 }
 
 public class Test {
     public static void main(String[] args) {
-        M x = new M(); // O13
-        M y = new M(); // O14
-        if (args.length > 0)
-            x = new N();
-        if(args.length > 1)
-            x = new T();
-        y.m = x;
-        x.foo(y);
-        y.foo(x);
+        int res = 0;
+        long start = System.nanoTime();
+
+        A a = new A();
+        for(int i=0;i<10000000;i++)
+        {
+            res += a.add(res, i);
+        }
+
+        long end = System.nanoTime();
+        System.out.println("Result: " + res);
+        System.out.println("Time: " + (end - start) / 1000);
 
     }
 }

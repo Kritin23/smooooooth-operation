@@ -6,22 +6,25 @@ fi
 
 DIR=testcases/$1
 
-rm -rf sootOutput/$1
-rm -rf sootJimple/*
+rm -rf src/sootOutput/$1
+rm -rf src/sootJimple/*
 
-mkdir -p sootOutput/$1
-mkdir -p sootJimple
+mkdir -p src/sootOutput/$1
+mkdir -p src/sootJimple
 
 rm *.class
 javac testcases/$1/Test.java
 
 echo "----- Baseline Output-----"
-java -Xint -cp $DIR Test | tee baseline.out
+java -Xint -cp $DIR Test
 
+cd src
 
-javac -g -cp .:soot.jar Main.java
-java -cp .:soot.jar Main $1 > out.log
+javac -g -cp .:../soot.jar Main.java
+java -cp .:../soot.jar Main $1 > out.log
 
 echo "----- Optimized Output -----"
-java -Xint -cp sootOutput/$1 Test | tee optimized.out
+java -Xint -cp sootOutput/$1 Test
+
+cd ..
 

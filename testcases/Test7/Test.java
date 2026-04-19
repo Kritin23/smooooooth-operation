@@ -1,3 +1,10 @@
+/**
+ * We don't handle library methods. 
+ * But still as there are only three targets, 
+ * they get inlined.
+ */
+
+
 import java.util.*;
 
 
@@ -93,43 +100,13 @@ public class Test {
 
         long stop = System.nanoTime();
 
-        System.out.println("Run1 Result: "+ res);
-        System.out.println("Run1 Time: " + (stop - start) / 1000);
+        System.out.println("Result: "+ res);
+        System.out.println("Time: " + (stop - start) / 1000);
     }
 
-    static void run2()
-    {
-        long start = System.nanoTime();
-
-        int res = 0;
-        for(int i=0;i<100000;i++)
-        {
-            res = 0;
-            List<A> arr = new ArrayList<>();
-            arr.add(new A());
-            arr.add(new B());
-            arr.add(new C());
-            arr.add(new A());
-            arr.add(new B());
-            arr.add(new C());
-            arr.add(new A());
-            arr.add(new B());
-            arr.add(new C());
-            for(var v : arr)
-            {
-                res += v.foo();
-            }
-        }
-
-        long stop = System.nanoTime();
-
-        System.out.println("Run1 Result: "+ res);
-        System.out.println("Run1 Time: " + (stop - start) / 1000);
-    }
 
     public static void main(String[] Args)
     {
         run1();
-        run2();
     }
 }

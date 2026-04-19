@@ -1,3 +1,8 @@
+/**
+ * AST traversal like. 
+ * Because of object sensitivity, exerything inlined
+ */
+
 abstract class A {
     abstract int f();
 }

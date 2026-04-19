@@ -3,7 +3,7 @@ import soot.options.Options;
 
 public class Main {
     public static void main(String[] args) {
-        String classPath = "./testcases/" + args[0];
+        String classPath = "../testcases/" + args[0];
         String outputDir = "./sootOutput/" + args[0];
 
         // 1. Setting global options

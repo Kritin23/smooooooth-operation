@@ -1,3 +1,8 @@
+/**
+ * We don't handle recursive calls
+ * Negative Testcase
+ */
+
 class A {
     public A f;   
 

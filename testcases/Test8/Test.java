@@ -1,3 +1,10 @@
+/**
+ * Testing our intraprocedural analysis
+ * by having allocations nested within
+ * multiple calls
+ */
+
+
 abstract class A {
     abstract int foo();
 }
@@ -46,7 +53,7 @@ public class Test {
     {
         long start = System.nanoTime();
         int res = 0;
-        for(int i=0;i<1000;i++)
+        for(int i=0;i<1000000;i++)
         {
             A a = Gen2.build(i);
             res += a.foo();

@@ -172,6 +172,8 @@ public class Optimization {
             }
 
             inlined.add(ir.site);
+
+            if(!ir.inlinee.hasActiveBody()) continue;
             SiteInliner.inlineSite(ir.inlinee, ir.site, ir.container);
         }
 
@@ -303,6 +305,8 @@ public class Optimization {
             System.out.println("Split inlining: " + ir);
             // System.out.println("here2");
             inlined.add(ir.site);
+
+            if(!ir.inlinee.hasActiveBody()) continue;
             SiteInliner.inlineSite(ir.inlinee, ir.site, ir.container);
         }
 

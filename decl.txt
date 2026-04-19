@@ -1,0 +1,7 @@
+We have used AI for 
+ - Understanding Soot syntax
+ - Debugging soot, JVM errors
+ - Finding out Java library functions we dit not know about
+ - Generating repetitive code for testcasese (ideas of what testcases should do were our own)
+
+No AI was used in any intellectual work / planning / idea generation / implementation of the analysis or transformation
