@@ -15,10 +15,10 @@ public class AnalysisTransformer extends SceneTransformer {
 
     static CallGraph cg;
 
-    static int numIters = 4;
+    static int numIters = 5;
     static boolean doBasic = true;
     static boolean doBetter = true;
-
+    static boolean doSplitting = true;
 
     @Override
     protected void internalTransform(String phaseName, Map<String, String> options) {
@@ -131,12 +131,8 @@ public class AnalysisTransformer extends SceneTransformer {
     }
 
     void handleEntryPoint(SootMethod sm) {
-        int numArgs = sm.getParameterCount();
-        List<Local> params = new ArrayList<>();
-        for (int i = 0; i < numArgs; i++)
-            params.add(null);
-        MethodAnalysis main = new MethodAnalysis(sm, cg, null, params, new PTG());
-        main.runAnalysis();
+        ForwardDFA dfa = new ForwardDFA(sm, cg);
+        dfa.runAnalysis();
     }
 
     void dumpCallGraphDot(CallGraph cg, String file) {

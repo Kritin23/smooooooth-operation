@@ -42,14 +42,14 @@ public class HeapObj {
 
     @Override
     public int hashCode() {
-        return alloc_site.hashCode();
+        return Objects.hash(alloc_site, ctx);
     }
 
     @Override
     public boolean equals(Object o) {
         if (o instanceof HeapObj) {
             HeapObj other = (HeapObj) o;
-            return this.alloc_site.equals(other.alloc_site);
+            return this.alloc_site.equals(other.alloc_site) && this.ctx.equals(other.ctx);
         }
         return false;
     }

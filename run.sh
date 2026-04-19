@@ -6,10 +6,11 @@ fi
 
 DIR=testcases/$1
 
-rm sootOutput/$1
-rm sootJimple/*
+rm -rf sootOutput/$1
+rm -rf sootJimple/*
 
 mkdir -p sootOutput/$1
+mkdir -p sootJimple
 
 rm *.class
 javac testcases/$1/Test.java

@@ -35,6 +35,9 @@ public class PA4 {
                 "-d", outputDir
         };
 
+        // Scene.v().addBasicClass("java.util.ArrayList", SootClass.BODIES);
+        // Scene.v().addBasicClass("java.util.HashMap", SootClass.BODIES);
+
         // 4. Just call main. It will parse args, load classes, and run the packs.
         soot.Main.main(sootArgs);
     }

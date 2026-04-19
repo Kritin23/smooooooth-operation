@@ -10,8 +10,8 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 
 
 public class PTG {
-    Map<Local, Set<HeapObj>> stack = new HashMap<>();
-    Map<HeapObj, Map<SootField, Set<HeapObj>>> heap = new HashMap<>();
+    public Map<Local, Set<HeapObj>> stack = new HashMap<>();
+    public Map<HeapObj, Map<SootField, Set<HeapObj>>> heap = new HashMap<>();
 
     public void addStack(Local local, HeapObj obj) {
         stack.computeIfAbsent(local, k -> new HashSet<>()).add(obj);
@@ -59,26 +59,60 @@ public class PTG {
         return visited;
     }
 
+    Set<HeapObj> reachable(HeapObj o)
+    {
+        Set<HeapObj> visited = new HashSet<>();
+        Queue<HeapObj> queue = new LinkedList<>();
+
+        queue.add(o);
+        visited.add(o);
+
+        // BFS to find all reachable objects
+        while (!queue.isEmpty()) {
+            HeapObj current = queue.poll();
+            if (heap.containsKey(current)) {
+                for (Map.Entry<SootField, Set<HeapObj>> entry : heap.get(current).entrySet()) {
+                    for (HeapObj neighbor : entry.getValue()) {
+                        if (!visited.contains(neighbor)) {
+                            visited.add(neighbor);
+                            queue.add(neighbor);
+                        }
+                    }
+                }
+            }
+        }
+
+        return visited;
+    }
+
     void merge(PTG other) {
         // Merge stack
+        // System.out.println("merging");
         for (Map.Entry<Local, Set<HeapObj>> entry : other.stack.entrySet()) {
             Local local = entry.getKey();
             Set<HeapObj> objs = entry.getValue();
-            stack.computeIfAbsent(local, k -> new HashSet<>()).addAll(objs);
+            Set<HeapObj> newSet = stack.computeIfAbsent(local, k -> new HashSet<>());
+            newSet.addAll(objs);
+            stack.put(local, newSet);
+
         }
 
         // Merge heap
-        for (Map.Entry<HeapObj, Map<SootField, Set<HeapObj>>> entry : other.heap.entrySet()) {
-            HeapObj heapObj = entry.getKey();
-            Map<SootField, Set<HeapObj>> fields = entry.getValue();
-            Map<SootField, Set<HeapObj>> thisFields = heap.computeIfAbsent(heapObj, k -> new HashMap<>());
-
-            for (Map.Entry<SootField, Set<HeapObj>> fieldEntry : fields.entrySet()) {
-                SootField field = fieldEntry.getKey();
-                Set<HeapObj> objs = fieldEntry.getValue();
-                thisFields.computeIfAbsent(field, k -> new HashSet<>()).addAll(objs);
+        // Set<HeapObj> objSet = heap.keySet();
+        for (HeapObj o : other.heap.keySet())
+        {
+            // System.out.println("adding " + o);
+            Map<SootField, Set<HeapObj>> map = other.heap.get(o);
+            Set<SootField> fields = map.keySet();
+            for(var f : fields)
+            {
+                Set<HeapObj> objs = other.getHeap(o, f);
+                for (var pointee : objs)
+                    addHeap(o, f, pointee);
             }
         }
+
+        // System.out.println("final " + this);
     }
 
     PTG copy() {
@@ -115,6 +149,31 @@ public class PTG {
             if(stack.keySet().contains(l))
                 newPTG.stack.put(l, new HashSet<>(stack.get(l)));
         }
+        for (Map.Entry<HeapObj, Map<SootField, Set<HeapObj>>> entry : heap.entrySet()) {
+            if(reachableSet.contains(entry.getKey())) {
+                Map<SootField, Set<HeapObj>> newFields = new HashMap<>();
+                for (Map.Entry<SootField, Set<HeapObj>> fieldEntry : entry.getValue().entrySet()) {
+                    newFields.put(fieldEntry.getKey(), new HashSet<>(fieldEntry.getValue()));
+                }
+                newPTG.heap.put(entry.getKey(), newFields);
+            }
+        }
+        return newPTG;
+    }
+
+    PTG copy_restrict(Set<HeapObj> base)
+    {
+        
+        PTG newPTG = new PTG();
+        Set<HeapObj> reachableSet = new HashSet<>();
+        for(var o : base)
+        {
+            reachableSet.addAll(reachable(o));
+        }
+        // for (var l : locals) {
+        //     if(stack.keySet().contains(l))
+        //         newPTG.stack.put(l, new HashSet<>(stack.get(l)));
+        // }
         for (Map.Entry<HeapObj, Map<SootField, Set<HeapObj>>> entry : heap.entrySet()) {
             if(reachableSet.contains(entry.getKey())) {
                 Map<SootField, Set<HeapObj>> newFields = new HashMap<>();

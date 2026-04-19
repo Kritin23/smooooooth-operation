@@ -9,14 +9,17 @@ import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.jimple.toolkits.invoke.SiteInliner;
 import soot.toolkits.graph.UnitGraph;
+import soot.util.Chain;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
 public class Optimization {
     CallGraph cg;
+    Set<Unit> inlined = new HashSet<>();
 
     Optimization(CallGraph cg) {
         this.cg = cg;
     }
+
 
     public record inlineTarget(SootMethod inlinee, Stmt site, SootMethod container) {
     }
@@ -33,6 +36,7 @@ public class Optimization {
         {
             for (SootMethod sm : sc.getMethods()) 
             {
+                if(sm.isConstructor())  continue;
                 if (!sm.hasActiveBody())    continue;
                 Body body = sm.getActiveBody();
                 for (Unit u : body.getUnits()) 
@@ -78,8 +82,13 @@ public class Optimization {
         for (var ir : tgts) {
             if (ir.inlinee == ir.container)
                 continue;
+            if (inlined.contains(ir.site))   
+                continue;
+            if(ir.inlinee.isConstructor())  continue;
+            if(!ir.inlinee.hasActiveBody()) continue;
             System.out.println("Basic inlining: " + ir);
             // System.out.println("here2");
+            inlined.add(ir.site);
             SiteInliner.inlineSite(ir.inlinee, ir.site, ir.container);
         }
 
@@ -102,6 +111,7 @@ public class Optimization {
         if (!sm.hasActiveBody())
             return;
         Body body = sm.getActiveBody();
+        Chain<Unit> units = body.getUnits();
 
         for (Unit u : body.getUnits()) {
             Stmt stmt = (Stmt) u;
@@ -123,14 +133,45 @@ public class Optimization {
                 continue;
             if (ir.inlinee.isConstructor())
                 continue;
+            if (inlined.contains(ir.site))   
+                continue;
             // System.out.println("here2");
             System.out.println("Better inlining: " + ir);
+
+            
+            Stmt stmt = ir.site;
+            InvokeExpr ie = stmt.getInvokeExpr();
+
+            if(ie instanceof InstanceInvokeExpr)
+            {
+                InstanceInvokeExpr iie = (InstanceInvokeExpr) ie;
+                Local recv_local = (Local) iie.getBase();
+                SootClass className = ir.inlinee.getDeclaringClass();
+                // Need to insert a cast before inlining
+                Local temp = Jimple.v().newLocal("temp", className.getType());
+                body.getLocals().add(temp);
+                CastExpr ce = Jimple.v().newCastExpr(recv_local, className.getType());
+                Unit castAssign = Jimple.v().newAssignStmt(temp, ce);
+                
+                units.insertBefore(castAssign, stmt);
+                iie.setBase(temp);
+                
+            }
+
+            inlined.add(ir.site);
             SiteInliner.inlineSite(ir.inlinee, ir.site, ir.container);
         }
 
         body.validate();
 
     }
+
+    
+    // public void Splitting(SootMethod sm, Stmt stmt, Set<SootMethod> targets)
+    // {
+    //     if(!AnalysisTransformer.doSplitting)    return;
+
+    // }
 
     public void setCG(CallGraph _cg) {
         this.cg = _cg;
