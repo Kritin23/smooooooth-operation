@@ -49,7 +49,7 @@ public class AnalysisTransformer extends SceneTransformer {
             // dumpCallGraphDot(cg, "callGraphs/cg_" + i + ".dot");
             if (doBasic)
                 opt.basicInlining();
-            // forEachMethod((sc, sm) -> cleanupPass(sc, sm));
+            forEachMethod((sc, sm) -> cleanupPass(sc, sm));
             // dumpJimple();
 
             // Get Fresh Call Graph
@@ -70,7 +70,7 @@ public class AnalysisTransformer extends SceneTransformer {
             MethodAnalysis.printTargets();
             MethodAnalysis.clearAllResults();
 
-            // forEachMethod((sc, sm) -> cleanupPass(sc, sm));
+            forEachMethod((sc, sm) -> cleanupPass(sc, sm));
 
         }
         // dumpJimple();

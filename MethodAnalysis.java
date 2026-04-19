@@ -1,3 +1,4 @@
+
 /* MethodAnalysis.java */
 import java.util.*;
 
@@ -8,19 +9,20 @@ import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
-
 public class MethodAnalysis {
-    record CallSite(SootMethod method, Unit unit) {}
+    record CallSite(SootMethod method, Unit unit) {
+    }
+
     record AnalysisInfo(Set<HeapObj> ret, PTG outPtg) {
         AnalysisInfo() {
             this(new HashSet<>(), new PTG());
         }
     }
-    record Result (
-        Map<Unit, Set<SootMethod>> targets,
-        Map<Unit, Set<HeapObj>> receivers
-    ) {
-        Result(){
+
+    record Result(
+            Map<Unit, Set<SootMethod>> targets,
+            Map<Unit, Set<HeapObj>> receivers) {
+        Result() {
             this(new HashMap<>(), new HashMap<>());
         }
     }
@@ -29,7 +31,6 @@ public class MethodAnalysis {
     static HashMap<Context, Result> allResults = new HashMap<>();
     static HashMap<CallSite, Set<SootMethod>> targets = new HashMap<>();
     // static HashMap<Context, PTG> outPTGs = new HashMap<>();
-
 
     SootMethod method;
     Body body;
@@ -59,9 +60,9 @@ public class MethodAnalysis {
             List<Set<HeapObj>> params,
             PTG inPtg,
             ForwardDFA dfa) {
-        
+
         this.method = sm;
-        if(sm.hasActiveBody())
+        if (sm.hasActiveBody())
             this.body = sm.getActiveBody();
         this.cg = _cg;
         this.recv = recv;
@@ -73,43 +74,38 @@ public class MethodAnalysis {
         this.returned = new HashSet<>();
 
         // build a context here
-        this.ctx = new Context(sm, recv);   
-
-
+        this.ctx = new Context(sm, recv);
 
         // List<Type> paramTypes = new ArrayList<>();
         // for (var p : params) {
-        //     Set<HeapObj> objs = inPtg.getStack(p);
-        //     Type tp = null;
-        //     boolean uninit = true;
-        //     for (HeapObj o : objs) {
-        //         if (uninit) {
-        //             tp = o.getObjectType();
-        //             uninit = false;
-        //         } else if (tp != o.getObjectType()) {
-        //             tp = null;
-        //         }
-        //     }
+        // Set<HeapObj> objs = inPtg.getStack(p);
+        // Type tp = null;
+        // boolean uninit = true;
+        // for (HeapObj o : objs) {
+        // if (uninit) {
+        // tp = o.getObjectType();
+        // uninit = false;
+        // } else if (tp != o.getObjectType()) {
+        // tp = null;
+        // }
+        // }
 
-        //     paramTypes.add(tp);
+        // paramTypes.add(tp);
 
         // }
 
-
-
-        
         // if(onStack.contains(ctx))
-        //     analysisNeeded = false;
+        // analysisNeeded = false;
         // if (MethodAnalysis.methodInPTG.containsKey(this.ctx)) {
-        //     PTG newPTG = this.inPtg.copy();
-        //     newPTG.merge(MethodAnalysis.methodInPTG.get(this.ctx));
-        //     if (this.inPtg.equals(newPTG)) {
-        //         analysisNeeded = false;
-        //     }
-        //     this.inPtg = newPTG;
-        //     MethodAnalysis.methodInPTG.replace(this.ctx, newPTG);
+        // PTG newPTG = this.inPtg.copy();
+        // newPTG.merge(MethodAnalysis.methodInPTG.get(this.ctx));
+        // if (this.inPtg.equals(newPTG)) {
+        // analysisNeeded = false;
+        // }
+        // this.inPtg = newPTG;
+        // MethodAnalysis.methodInPTG.replace(this.ctx, newPTG);
         // } else {
-        //     MethodAnalysis.methodInPTG.put(this.ctx, this.inPtg);
+        // MethodAnalysis.methodInPTG.put(this.ctx, this.inPtg);
         // }
 
         // System.out.println("Analysing " + this.ctx);
@@ -126,13 +122,13 @@ public class MethodAnalysis {
 
             // if x = foo(...)
             // if (stmt instanceof AssignStmt) {
-            //     AssignStmt assign = (AssignStmt) stmt;
-            //     Value lhs = assign.getLeftOp();
+            // AssignStmt assign = (AssignStmt) stmt;
+            // Value lhs = assign.getLeftOp();
 
-                // if (lhs instanceof Local) {
-                //     // conservative: unknown return value
-                //     ptg.stack.remove((Local) lhs);
-                // }
+            // if (lhs instanceof Local) {
+            // // conservative: unknown return value
+            // ptg.stack.remove((Local) lhs);
+            // }
             // }
         }
 
@@ -146,7 +142,7 @@ public class MethodAnalysis {
                 HeapObj obj = new HeapObj(stmt, this.ctx);
                 // scalarReplaceable.put(obj, true); // initially assume replaceable
                 ptg.stack.put((Local) lhs, new HashSet<>(Set.of(obj)));
-            } 
+            }
             // x.f = new A
             else if (lhs instanceof InstanceFieldRef && rhs instanceof NewExpr) {
                 InstanceFieldRef fr = (InstanceFieldRef) lhs;
@@ -167,7 +163,7 @@ public class MethodAnalysis {
                     !(rhs instanceof Local) &&
                     !(rhs instanceof InstanceFieldRef) &&
                     !(rhs instanceof StaticFieldRef) &&
-                    !(rhs instanceof InvokeExpr) && 
+                    !(rhs instanceof InvokeExpr) &&
                     !(rhs instanceof CastExpr)) {
 
                 // constants kill points-to
@@ -176,7 +172,7 @@ public class MethodAnalysis {
 
             // x = (Cast) y
             else if (lhs instanceof Local && rhs instanceof CastExpr) {
-                Local loc =(Local) ((CastExpr) rhs).getOp();
+                Local loc = (Local) ((CastExpr) rhs).getOp();
                 ptg.stack.put((Local) lhs,
                         new HashSet<>(ptg.getStack(loc)));
             }
@@ -228,12 +224,10 @@ public class MethodAnalysis {
 
                 for (HeapObj obj : ptg.getStack(base)) {
                     Set<HeapObj> ho = ptg.getHeap(obj, fr.getField());
-                    if(ho.isEmpty())
-                    {
+                    if (ho.isEmpty()) {
                         result.clear();
                         break;
-                    }
-                    else
+                    } else
                         result.addAll(ho);
                 }
 
@@ -283,16 +277,13 @@ public class MethodAnalysis {
             }
 
         }
-        
+
         if (stmt instanceof ReturnStmt) {
             ReturnStmt ret = (ReturnStmt) stmt;
-            if (!(ret.getOp() instanceof Local))
-            {
+            if (!(ret.getOp() instanceof Local)) {
                 emptyReturn = true;
                 returned.clear();
-            }
-            else 
-            {
+            } else {
                 Local loc = (Local) ret.getOp();
                 Set<HeapObj> objs = ptg.getStack(loc);
                 returned.addAll(objs);
@@ -374,10 +365,16 @@ public class MethodAnalysis {
                 RefType tp = (RefType) o.getObjectType();
                 SootClass sc = tp.getSootClass();
                 SootMethod called = declMethod;
+                SootClass declClass = called.getDeclaringClass();
                 if(!declMethod.isConstructor())
+                {
+                    if (!Scene.v().getActiveHierarchy()
+                     .isClassSubclassOfIncluding(sc, declClass)) {
+                        continue;
+                     }
                     called = Scene.v().getActiveHierarchy()
                         .resolveConcreteDispatch(sc, declMethod);
-
+                }
                 if (called == null)
                     continue;
 
@@ -463,16 +460,16 @@ public class MethodAnalysis {
      */
     AnalysisInfo runAnalysis() {
 
-        if(!method.hasActiveBody())
+        if (!method.hasActiveBody())
             return new AnalysisInfo();
 
         // if (!analysisNeeded)
         // {
-        //     System.out.println("Returning from Map");
-        //     System.out.println(outPTGs.get(ctx));
-        //     return outPTGs.computeIfAbsent(ctx, (k) -> new PTG());
+        // System.out.println("Returning from Map");
+        // System.out.println(outPTGs.get(ctx));
+        // return outPTGs.computeIfAbsent(ctx, (k) -> new PTG());
         // }
-        
+
         // System.out.println("STARTING: " + ctx);
         // System.out.println(this.ctx);
         // System.out.println("Params: " + params);
@@ -535,10 +532,8 @@ public class MethodAnalysis {
         allResults.put(ctx, this.analysisRes);
         // onStack.remove(ctx);
 
-        for(var u : body.getUnits())
-        {
-            if(isExit(u))
-            {
+        for (var u : body.getUnits()) {
+            if (isExit(u)) {
                 globalOutPtg.merge(ptgAfter.get(u));
             }
         }
@@ -560,13 +555,10 @@ public class MethodAnalysis {
         targets = new HashMap<>();
     }
 
-    static void printTargets()
-    {
-        for(var cs : targets.keySet())
-        {
+    static void printTargets() {
+        for (var cs : targets.keySet()) {
             System.out.println(cs + ": ");
-            for(var sm : targets.get(cs))
-            {
+            for (var sm : targets.get(cs)) {
                 System.out.println("\t" + sm);
             }
         }

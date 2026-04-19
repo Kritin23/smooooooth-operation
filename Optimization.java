@@ -240,7 +240,7 @@ public class Optimization {
                 args
             );
 
-            Unitr castInvoke;
+            Unit castInvoke;
             if(stmt instanceof InstanceInvokeExpr)
             {
                 // castInvoke = (Unit) invoke_expr;
