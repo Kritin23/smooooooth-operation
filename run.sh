@@ -19,8 +19,8 @@ echo "----- Baseline Output-----"
 java -Xint -cp $DIR Test | tee baseline.out
 
 
-javac -g -cp .:soot.jar PA4.java
-java -cp .:soot.jar PA4 $1 > out.log
+javac -g -cp .:soot.jar Main.java
+java -cp .:soot.jar Main $1 > out.log
 
 echo "----- Optimized Output -----"
 java -Xint -cp sootOutput/$1 Test | tee optimized.out

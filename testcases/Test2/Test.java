@@ -25,9 +25,9 @@ class C implements Worker {
 class Util {
     // recursive function to test inlining depth
     public static int recursive(int n) {
-        // if (n <= 1) return 1;
-        // return n * recursive(n - 1);
-        return 0;
+        if (n <= 1) return 1;
+        return n * recursive(n - 1);
+        // return 0;
     }
 }
 

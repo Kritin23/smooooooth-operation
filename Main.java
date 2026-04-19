@@ -1,7 +1,7 @@
 import soot.*;
 import soot.options.Options;
 
-public class PA4 {
+public class Main {
     public static void main(String[] args) {
         String classPath = "./testcases/" + args[0];
         String outputDir = "./sootOutput/" + args[0];

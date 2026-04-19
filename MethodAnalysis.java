@@ -43,6 +43,7 @@ public class MethodAnalysis {
     boolean analysisNeeded;
     ForwardDFA parent;
     Set<HeapObj> returned;
+    boolean emptyReturn = false;
 
     Map<Unit, PTG> ptgBefore = new HashMap<>();
     Map<Unit, PTG> ptgAfter = new HashMap<>();
@@ -285,9 +286,17 @@ public class MethodAnalysis {
         
         if (stmt instanceof ReturnStmt) {
             ReturnStmt ret = (ReturnStmt) stmt;
-            Local loc = (Local) ret.getOp();
-            Set<HeapObj> objs = ptg.getStack(loc);
-            returned.addAll(objs);
+            if (!(ret.getOp() instanceof Local))
+            {
+                emptyReturn = true;
+                returned.clear();
+            }
+            else 
+            {
+                Local loc = (Local) ret.getOp();
+                Set<HeapObj> objs = ptg.getStack(loc);
+                returned.addAll(objs);
+            }
             // ptg.addS
         }
         return ptg;
@@ -540,7 +549,7 @@ public class MethodAnalysis {
         // System.out.println("OUT PTG:");
         // System.out.println(globalOutPtg);
 
-        return new AnalysisInfo(returned, globalOutPtg);
+        return new AnalysisInfo(!emptyReturn ? returned : new HashSet<>(), globalOutPtg);
 
         // propagateNonScalarReplaceable(globalMergedPTG);
         // return scalarReplaceable;
